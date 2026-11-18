@@ -1,0 +1,95 @@
+{
+  "name": "codex-local-bridge-remote",
+  "displayName": "Codex Local Bridge — Remote",
+  "description": "为远程官方 Codex 扩展提供经本机 CC Switch 出网的 API 桥接。",
+  "version": "0.2.0",
+  "publisher": "vectory-local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "extensionKind": [
+    "workspace"
+  ],
+  "extensionDependencies": [
+    "vectory-local.codex-local-bridge-local"
+  ],
+  "main": "./src/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "codexLocalBridge.start",
+        "title": "Codex Local Bridge: 启动远程桥接"
+      },
+      {
+        "command": "codexLocalBridge.stop",
+        "title": "Codex Local Bridge: 停止远程桥接"
+      },
+      {
+        "command": "codexLocalBridge.diagnose",
+        "title": "Codex Local Bridge: 检查本机出口"
+      },
+      {
+        "command": "codexLocalBridge.configureCodex",
+        "title": "Codex Local Bridge: 配置远程 Codex"
+      },
+      {
+        "command": "codexLocalBridge.showConfig",
+        "title": "Codex Local Bridge: 显示现有 Codex 的配置片段"
+      },
+      {
+        "command": "codexLocalBridge.selectModel",
+        "title": "Codex Local Bridge: 选择模型并显示配置"
+      },
+      {
+        "command": "codexLocalBridge.openTerminal",
+        "title": "Codex Local Bridge: 打开远程 Codex 终端"
+      }
+    ],
+    "configuration": {
+      "title": "Codex Local Bridge",
+      "properties": {
+        "codexLocalBridge.remotePort": {
+          "type": "integer",
+          "default": 35721,
+          "minimum": 1024,
+          "maximum": 65535,
+          "scope": "machine",
+          "description": "远程回环 HTTP 代理端口。"
+        },
+        "codexLocalBridge.autoStart": {
+          "type": "boolean",
+          "default": true,
+          "scope": "machine",
+          "description": "在打开远程工作区后启动桥接。"
+        },
+        "codexLocalBridge.model": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "description": "显式指定模型 ID。留空时自动读取本机目录和当前 Codex 模型；多候选时选择，均不可用时手动输入。"
+        }
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blacker521/codex-local-bridge.git",
+    "directory": "remote"
+  },
+  "homepage": "https://github.com/blacker521/codex-local-bridge#readme",
+  "bugs": {
+    "url": "https://github.com/blacker521/codex-local-bridge/issues"
+  }
+}

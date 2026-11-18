@@ -1,0 +1,25 @@
+{
+  "name": "vscode-codex-local-bridge",
+  "version": "0.2.0",
+  "private": true,
+  "description": "通过 VS Code 已有远程连接，将官方 Codex 的模型请求交给本机 CC Switch。",
+  "scripts": {
+    "check": "node scripts/check.js",
+    "test": "node --test test/*.test.js",
+    "test:scan": "python3 scripts/test-publication-scan.py",
+    "package": "node scripts/package.js",
+    "scan:secrets": "python3 scripts/scan-publication.py"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blacker521/codex-local-bridge.git"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "4.1.1",
+    "yazl": "3.3.1"
+  }
+}

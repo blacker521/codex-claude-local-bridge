@@ -1,0 +1,8 @@
+title = "Codex Local Bridge secret scan"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Dependency cache and Git internals are not publication inputs"
+paths = ['''(^|/)(node_modules|\.git)(/|$)''']

@@ -1,0 +1,76 @@
+{
+  "name": "codex-local-bridge-local",
+  "displayName": "Codex Local Bridge · 本机",
+  "description": "经现有 VS Code Remote 通道，将 Codex API 请求交给本机 CCSwitch。",
+  "version": "0.2.0",
+  "publisher": "vectory-local",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/blacker521/codex-local-bridge.git", "directory": "local" },
+  "homepage": "https://github.com/blacker521/codex-local-bridge#readme",
+  "bugs": { "url": "https://github.com/blacker521/codex-local-bridge/issues" },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "extensionKind": ["ui"],
+  "api": "none",
+  "main": "./src/extension.js",
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:codexLocalBridge.local.begin",
+    "onCommand:codexLocalBridge.local.write",
+    "onCommand:codexLocalBridge.local.end",
+    "onCommand:codexLocalBridge.local.read",
+    "onCommand:codexLocalBridge.local.cancel",
+    "onCommand:codexLocalBridge.local.status",
+    "onCommand:codexLocalBridge.local.authStatus",
+    "onCommand:codexLocalBridge.local.models",
+    "onCommand:codexLocalBridge.showStatus"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "codexLocalBridge.showStatus",
+        "title": "Codex Local Bridge: 查看本机状态"
+      }
+    ],
+    "configuration": {
+      "title": "Codex Local Bridge",
+      "properties": {
+        "codexLocalBridge.upstreamOrigin": {
+          "type": "string",
+          "default": "http://127.0.0.1:2900",
+          "scope": "machine",
+          "description": "本机 CCSwitch 的 HTTP(S) origin。仅允许 localhost、127.0.0.1 或 [::1]，不能包含路径、用户名、查询或片段。修改后会取消现有桥接请求。"
+        },
+        "codexLocalBridge.codexHome": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "description": "本机 Codex 配置目录的绝对路径，须与 CC Switch 使用的目录一致。留空依次使用本机 CODEX_HOME、~/.codex。模型发现只提取 model；本机认证会读取其中 auth.json 的 ChatGPT 登录。"
+        },
+        "codexLocalBridge.authentication": {
+          "type": "string",
+          "enum": ["auto", "proxy-managed", "local-chatgpt"],
+          "default": "auto",
+          "scope": "machine",
+          "description": "本机到 CC Switch 的认证。auto 在本机存在 ChatGPT 文件登录时加载它，否则用供应商占位 Key；proxy-managed 仅供第三方 API；local-chatgpt 要求本机文件登录。官方凭据始终只留在本机，不传到服务器。"
+        },
+        "codexLocalBridge.ccSwitchHome": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "description": "本机 CC Switch 数据目录的绝对路径。留空使用 ~/.cc-switch；模型目录和 Codex 配置均不可用时，只读当前供应商最近成功请求的模型 ID。此回退需要 Python 3。"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "check": "node --check src/broker.js && node --check src/model-discovery.js && node --check src/local-auth.js && node --check src/extension.js"
+  }
+}

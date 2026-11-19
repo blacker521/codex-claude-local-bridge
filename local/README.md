@@ -2,7 +2,7 @@
 
 版本 **0.3.0**。这是单 VSIX 安装入口，主插件运行在本机，内置的 Remote 组件运行在服务器，让远程官方 Codex / Claude Code 的模型请求经编辑器远程通道交给本机 CC Switch。可与 [SSH PassBridge](https://github.com/blacker521/ssh-passbridge) 并用。本项目是社区伴随扩展，不包含官方 Codex。
 
-完整安装说明和单文件安装包见 [项目首页](https://github.com/blacker521/codex-local-bridge) 与 [Releases](https://github.com/blacker521/codex-local-bridge/releases)。
+完整安装说明和单文件安装包见 [项目首页](https://github.com/blacker521/codex-claude-local-bridge) 与 [Releases](https://github.com/blacker521/codex-claude-local-bridge/releases)。
 
 ## 安装与使用
 
@@ -58,4 +58,4 @@ Local 不监听 TCP 端口；Remote 只监听服务器 `127.0.0.1`，默认免�
 
 支持 HTTP / SSE：GET `/health`、`/v1/models`，POST `/v1/responses`、`/v1/responses/compact`、`/v1/messages`、`/v1/messages/count_tokens`；两个 Messages 路径支持精确的 `?beta=true`。计数路径是否可用取决于 CC Switch / 供应商，上游 404 原样返回。每个 broker 最多 8 会话、请求体 32 MiB、跨端块 64 KiB，持续传输无固定总时长限制。需保持本机 CC Switch 与远程窗口运行。
 
-升级时安装新版主 VSIX，再执行“安装或更新远程组件”并重载。已有同版或更高版本不会被降级覆盖。主插件与远程组件在扩展列表中仍是两个条目，这是同时运行两端代码所需的结构；卸载时按需在两端分别处理。重新配置后新建对话。若提示旧桥接令牌错误，检查是否仍运行旧版或安装到了其他配置档案。安全说明见 [SECURITY.md](https://github.com/blacker521/codex-local-bridge/blob/main/SECURITY.md)。以 MIT 许可证开源。
+升级时安装新版主 VSIX，再执行“安装或更新远程组件”并重载。已有同版或更高版本不会被降级覆盖。主插件与远程组件在扩展列表中仍是两个条目，这是同时运行两端代码所需的结构；卸载时按需在两端分别处理。重新配置后新建对话。若提示旧桥接令牌错误，检查是否仍运行旧版或安装到了其他配置档案。安全说明见 [SECURITY.md](https://github.com/blacker521/codex-claude-local-bridge/blob/main/SECURITY.md)。以 MIT 许可证开源。

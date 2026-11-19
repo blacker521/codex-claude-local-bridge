@@ -2,7 +2,7 @@
 
 版本 **0.3.0**。此远程组件由主插件内置并安装到 Remote-SSH 服务器，为官方 Codex 和 Claude Code 提供回环 API，经编辑器远程通道交给本机 Local 扩展和 CC Switch。可与 [SSH PassBridge](https://github.com/blacker521/ssh-passbridge) 并用，不修改 SSH wrapper、`remote.SSH.path` 或 SSH 凭据。
 
-完整安装说明和单文件安装包见 [项目首页](https://github.com/blacker521/codex-local-bridge) 与 [Releases](https://github.com/blacker521/codex-local-bridge/releases)。本项目是社区伴随扩展，不包含或修改官方 Codex。
+完整安装说明和单文件安装包见 [项目首页](https://github.com/blacker521/codex-claude-local-bridge) 与 [Releases](https://github.com/blacker521/codex-claude-local-bridge/releases)。本项目是社区伴随扩展，不包含或修改官方 Codex。
 
 ## 快速接入
 
@@ -83,4 +83,4 @@ Claude 模型设置独立于 Codex；本机 ChatGPT 登录不会用于 Claude �
 
 支持 HTTP / SSE，关闭 WebSocket；同一服务器和端口只运行一个桥接窗口。网络代理环境下，应让 app-server 对 `127.0.0.1,localhost,::1` 直连。不要将 CC Switch 的模型地址填入 `HTTP_PROXY`。
 
-更多边界见 [SECURITY.md](https://github.com/blacker521/codex-local-bridge/blob/main/SECURITY.md)。以 MIT 许可证开源。
+更多边界见 [SECURITY.md](https://github.com/blacker521/codex-claude-local-bridge/blob/main/SECURITY.md)。以 MIT 许可证开源。

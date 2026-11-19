@@ -7,12 +7,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/blacker521/codex-local-bridge.git",
+    "url": "https://github.com/blacker521/codex-claude-local-bridge.git",
     "directory": "local"
   },
-  "homepage": "https://github.com/blacker521/codex-local-bridge#readme",
+  "homepage": "https://github.com/blacker521/codex-claude-local-bridge#readme",
   "bugs": {
-    "url": "https://github.com/blacker521/codex-local-bridge/issues"
+    "url": "https://github.com/blacker521/codex-claude-local-bridge/issues"
   },
   "engines": {
     "vscode": "^1.85.0"

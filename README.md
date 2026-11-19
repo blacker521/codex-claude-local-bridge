@@ -1,4 +1,4 @@
-# Codex Local Bridge
+# Codex & Claude Local Bridge
 
 让服务器上的 **Codex 与 Claude Code** 经由本机 CC Switch 访问模型。使用同一个 VSIX 安装入口，继续使用两者的官方 VS Code / Cursor 侧栏，文件编辑与命令执行仍在服务器上完成。
 
@@ -44,7 +44,7 @@ curl --noproxy '*' --max-time 5 http://127.0.0.1:2900/health
 
 ### 2. 安装一个 VSIX
 
-从 [Releases](https://github.com/blacker521/codex-local-bridge/releases) 下载 **`codex-local-bridge-0.3.0.vsix`**，通过命令面板 `Extensions: Install from VSIX...` 安装。它是本机主插件，并内置与之匹配的远程组件，不需要另下第二个 VSIX，也不依赖扩展市场下载远程组件。
+从 [Releases](https://github.com/blacker521/codex-claude-local-bridge/releases) 下载 **`codex-local-bridge-0.3.0.vsix`**，通过命令面板 `Extensions: Install from VSIX...` 安装。它是本机主插件，并内置与之匹配的远程组件，不需要另下第二个 VSIX，也不依赖扩展市场下载远程组件。
 
 1. 在当前编辑器配置档案安装主插件，然后打开目标服务器的 Remote-SSH 窗口。
 2. 若首次提示缺少远程组件，选择“安装远程组件”；也可以主动执行 **`Codex Local Bridge: 安装或更新远程组件`**。

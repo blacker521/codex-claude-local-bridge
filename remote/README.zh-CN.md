@@ -1,6 +1,6 @@
 # Codex Local Bridge · Remote
 
-[English](README.md) | 简体中文
+[English](https://github.com/blacker521/codex-claude-local-bridge/blob/main/remote/README.md) | 简体中文
 
 版本 **0.3.1**。此远程组件由主插件内置并安装到 Remote-SSH 服务器，为官方 Codex 和 Claude Code 提供回环 API，经编辑器远程通道交给本机 Local 扩展和 CC Switch。可与 [SSH PassBridge](https://github.com/blacker521/ssh-passbridge) 并用，不修改 SSH wrapper、`remote.SSH.path` 或 SSH 凭据。
 

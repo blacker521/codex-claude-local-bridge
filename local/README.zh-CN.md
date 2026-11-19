@@ -1,6 +1,6 @@
 # Codex Local Bridge
 
-[English](README.md) | 简体中文
+[English](https://github.com/blacker521/codex-claude-local-bridge/blob/main/local/README.md) | 简体中文
 
 版本 **0.3.1**。这是单 VSIX 安装入口，主插件运行在本机，内置的 Remote 组件运行在服务器，让远程官方 Codex / Claude Code 的模型请求经编辑器远程通道交给本机 CC Switch。可与 [SSH PassBridge](https://github.com/blacker521/ssh-passbridge) 并用。本项目是社区伴随扩展，不包含官方 Codex。
 

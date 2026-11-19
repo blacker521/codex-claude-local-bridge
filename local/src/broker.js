@@ -6,11 +6,19 @@ const { randomUUID } = require('node:crypto');
 
 const MAX_CHUNK_BYTES = 64 * 1024;
 const MAX_SESSIONS = 8;
+const CLAUDE_PATHS = new Set([
+  '/v1/messages',
+  '/v1/messages?beta=true',
+  '/v1/messages/count_tokens',
+  '/v1/messages/count_tokens?beta=true',
+]);
+const isClaudePath = path => CLAUDE_PATHS.has(path);
 const ALLOWED_ROUTES = new Set([
   'GET /health',
   'GET /v1/models',
   'POST /v1/responses',
   'POST /v1/responses/compact',
+  ...Array.from(CLAUDE_PATHS, path => `POST ${path}`),
 ]);
 const HOP_HEADERS = new Set([
   'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization',
@@ -50,7 +58,7 @@ function filterHeaders(headers, request) {
     }
   }
   if (request) {
-    for (const name of ['authorization', 'chatgpt-account-id', 'host', 'content-length', 'expect']) blocked.add(name);
+    for (const name of ['authorization', 'chatgpt-account-id', 'x-api-key', 'host', 'content-length', 'expect']) blocked.add(name);
   }
   const output = Object.create(null);
   for (const [name, value] of Object.entries(headers)) {
@@ -119,7 +127,9 @@ class LocalBroker {
     const outgoingHeaders = filterHeaders(headers, true);
     // This second argument is supplied inside the LOCAL extension only. It is
     // never accepted as part of the remote command's serialized request DTO.
-    if (trustedLocalHeaders !== undefined) {
+    // Claude requests always use CC Switch-managed credentials. Even a local
+    // caller cannot accidentally attach the Codex ChatGPT snapshot to them.
+    if (trustedLocalHeaders !== undefined && !isClaudePath(path)) {
       if (!trustedLocalHeaders || typeof trustedLocalHeaders !== 'object' || Array.isArray(trustedLocalHeaders)) {
         throw new Error('Invalid local authentication headers');
       }
@@ -368,4 +378,4 @@ class LocalBroker {
   }
 }
 
-module.exports = { LocalBroker, parseOrigin };
+module.exports = { LocalBroker, parseOrigin, isClaudePath };

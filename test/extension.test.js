@@ -76,12 +76,14 @@ function createHost(owner, bus, settings) {
   };
   const context = {
     subscriptions: [],
+    extension: { packageJSON: { version: '0.3.0' }, extensionKind: owner === 'remote' ? 2 : 1 },
     get secrets() {
       state.secretAccesses.push('secrets');
       assert.fail('桥接免认证，不应访问 SecretStorage');
     },
   };
   const vscode = {
+    ExtensionKind: { UI: 1, Workspace: 2 },
     commands: bus.commands(owner),
     env: { remoteName: 'ssh-remote' },
     StatusBarAlignment: { Right: 2 },
@@ -260,9 +262,11 @@ test('双端扩展通过 JSON 命令总线激活、诊断和生成官方 Codex �
   });
   await localExtension.activate(local.context);
   await remoteExtension.activate(remote.context);
+  assert.deepEqual(await bus.commands('local').executeCommand('codexLocalBridge.remote.version'), { version: '0.3.0', kind: 'workspace' });
   const execute = (...args) => remote.vscode.commands.executeCommand(...args);
   assert.equal(requests.length, 0, 'autoStart=false 时激活不应访问上游');
-  assert.equal(bus.crossHostCalls.length, 0);
+  assert.deepEqual(bus.crossHostCalls.map(call => call.name), ['codexLocalBridge.remote.version'],
+    '激活时仅允许无副作用的组件版本探测，不应调用模型、认证或上游命令');
   assert.deepEqual(remote.state.secretAccesses, []);
 
   const address = await execute('codexLocalBridge.start');
@@ -281,6 +285,12 @@ test('双端扩展通过 JSON 命令总线激活、诊断和生成官方 Codex �
   assert.ok(remote.state.infos.some((message) => message.includes('已验证远程代理')));
   assert.ok(remote.state.outputs[0].lines.some((line) => line.includes('HTTP 200')));
   assert.equal(remote.state.outputs[0].shown, true);
+
+  const authCallsBeforeClaudeCheck = bus.crossHostCalls.filter(({ name }) => name === 'codexLocalBridge.local.authStatus').length;
+  await execute('codexLocalBridge.diagnoseClaude');
+  assert.equal(bus.crossHostCalls.filter(({ name }) => name === 'codexLocalBridge.local.authStatus').length, authCallsBeforeClaudeCheck,
+    'Claude 健康诊断不能加载 Codex 登录凭据');
+  assert.ok(remote.state.infos.some(message => message.includes('Claude 健康检查链路已连通')));
 
   await execute('codexLocalBridge.showConfig');
   assert.equal(remote.state.documents.length, 1);
@@ -342,7 +352,7 @@ test('双端扩展通过 JSON 命令总线激活、诊断和生成官方 Codex �
   assert.ok(bus.crossHostCalls.filter(({ name }) => name === 'codexLocalBridge.local.cancel').length >= 3);
   assert.equal(bus.crossHostCalls.some(({ name }) => name === 'codexLocalBridge.local.models'), false,
     '显式配置了模型 ID 时不应执行自动发现');
-  assert.deepEqual(requests.slice(1), [
+  assert.deepEqual(requests.slice(2), [
     { path: '/v1/responses', authorization: 'Bearer PROXY_MANAGED' },
     { path: '/v1/responses', authorization: 'Bearer PROXY_MANAGED' },
   ], '无服务器令牌的请求仍由本机端管理上游认证');

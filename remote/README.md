@@ -1,13 +1,13 @@
 # Codex Local Bridge · Remote
 
-版本 **0.2.0**。此扩展安装在 Remote-SSH 服务器，为官方 Codex 提供回环 API，经编辑器远程通道交给本机 Local 扩展和 CC Switch。可与 [SSH PassBridge](https://github.com/blacker521/ssh-passbridge) 并用，不修改 SSH wrapper、`remote.SSH.path` 或 SSH 凭据。
+版本 **0.3.0**。此远程组件由主插件内置并安装到 Remote-SSH 服务器，为官方 Codex 和 Claude Code 提供回环 API，经编辑器远程通道交给本机 Local 扩展和 CC Switch。可与 [SSH PassBridge](https://github.com/blacker521/ssh-passbridge) 并用，不修改 SSH wrapper、`remote.SSH.path` 或 SSH 凭据。
 
 完整安装说明和单文件安装包见 [项目首页](https://github.com/blacker521/codex-local-bridge) 与 [Releases](https://github.com/blacker521/codex-local-bridge/releases)。本项目是社区伴随扩展，不包含或修改官方 Codex。
 
 ## 快速接入
 
 1. 本机 CC Switch 开启 Codex 路由和代理，选择可用供应商。
-2. 当前配置档案的本机侧安装 `codex-local-bridge-local-0.2.0.vsix`，目标远程环境安装 `codex-local-bridge-remote-0.2.0.vsix`。
+2. 安装单个 `codex-local-bridge-0.3.0.vsix` 主插件，打开目标远程窗口，点击安装提示或执行 **`Codex Local Bridge: 安装或更新远程组件`**。无需单独下载本组件。
 3. 重载窗口，用 `Developer: Show Running Extensions` 核对两端位置。
 4. 在远程窗口运行 **`Codex Local Bridge: 检查本机出口`**，再运行 **`Codex Local Bridge: 配置远程 Codex`**。
 5. 检查弹窗中的模型、路径、provider 和桥接地址，选择“备份并配置”。
@@ -30,7 +30,19 @@ requires_openai_auth = false
 supports_websockets = false
 ```
 
-服务器无需 Codex 登录、API Key、桥接令牌或本机 `auth.json`。SSH 登录仍照常认证。升级时两端安装同一版本，运行配置命令，重载并新建对话。手动升级须删除旧桥接段中的 `experimental_bearer_token`、`env_key`、`auth` 和 Authorization 头。
+服务器无需 Codex 登录、API Key、桥接令牌或本机 `auth.json`。SSH 登录仍照常认证。升级时安装新版主 VSIX，再执行“安装或更新远程组件”，按提示重载并新建对话。手动升级须删除旧桥接段中的 `experimental_bearer_token`、`env_key`、`auth` 和 Authorization 头。
+
+主插件和本组件仍有不同的扩展 ID，分别运行在本机和服务器；用户只需要获取一个 VSIX。安装操作使用编辑器内置命令，不依赖远程服务器访问扩展市场，不会自动重载。若编辑器不支持，可从本机主插件目录取出 `assets/remote.vsix` 手动安装。每台服务器分别保留组件，卸载时需按需处理。
+
+## Claude Code 接入
+
+本机 CC Switch 需另行开启 Claude 路由，配置有效的 API / Bearer 供应商。远程运行“检查 Claude 出口”和“显示远程 Claude 配置”，输入该路由实际支持的模型 ID，将生成片段合入当前服务器的远程用户设置 JSON。保存后重载窗口，在官方 Claude Code 侧栏新建对话，用 `/status` 确认 `ANTHROPIC_BASE_URL` 是服务器桥接 origin（不含 `/v1`）。
+
+生成片段使用 `claudeCode.environmentVariables` 和 `claudeCode.disableLoginPrompt`，只展示、不自动写文件。已有环境数组按 name 更新，保留无关项；NO_PROXY 合并回环地址。远程 Claude 用户或项目 settings 中同名 env 可能覆盖启动环境，请处理旧地址、认证和云平台路由冲突；本插件不修改或绕过组织策略。公开占位值 `PROXY_MANAGED` 不是真实 Key，远程认证头会被移除，实际 Key 由本机 CC Switch 管理。
+
+也可运行“打开远程 Claude 终端”，要求远程 PATH 中已有 `claude`；以环境和单次 `--settings` 参数启动，不写持久设置。组织或项目强制配置可能影响结果，使用 `/status` 核实。
+
+Claude 模型设置独立于 Codex；本机 ChatGPT 登录不会用于 Claude 请求。不读取或刷新 Claude Pro / Max 订阅登录。本版本支持 Messages JSON / SSE / 工具调用正文与 `?beta=true`，count_tokens 原样转发，是否支持由 CC Switch 和上游决定；不包含额外账户、文件或搜索端点。
 
 ## 命令与设置
 
@@ -44,20 +56,24 @@ supports_websockets = false
 | 显示现有 Codex 的配置片段 | 自动采用模型后展示手动配置 |
 | 选择模型并显示配置 | 主动选择模型后展示配置 |
 | 打开远程 Codex 终端 | 用单次进程配置运行服务器 PATH 中的 `codex` |
+| 检查 Claude 出口 | 检查健康链路，不读取 Codex 登录 |
+| 显示远程 Claude 配置 | 生成官方侧栏的远程用户设置片段 |
+| 打开远程 Claude 终端 | 用单次进程配置运行远程 `claude` |
 
 | 远程设置 | 默认值 |
 | --- | --- |
 | `codexLocalBridge.remotePort` | `35721`，修改后需重新配置 Codex |
 | `codexLocalBridge.autoStart` | `true` |
-| `codexLocalBridge.model` | 空，自动发现；非空时显式覆盖 |
+| `codexLocalBridge.model` | 空，自动发现；非空时显式覆盖 Codex 模型 |
+| `codexLocalBridge.claudeModel` | 空，Claude 命令会询问；非空时显式指定 Claude 模型 |
 
 模型依次来自本机 CC Switch 模型目录、本机 Codex 顶层模型、当前供应商成功历史，支持手动输入。历史回退需本机 Python 3。认证和模型发现分开处理；健康检查或模型发现成功不保证真实模型请求可用。
 
-本机 `authentication` 默认 `auto`，读取可用的本机 ChatGPT 文件登录，否则使用由 CC Switch 管理的第三方占位认证。官方账号需本机文件登录账号和目录与 CC Switch 一致；桥接不刷新登录，不支持纯钥匙串登录。
+以下本机 `authentication` 仅用于 Codex，默认 `auto`，读取可用的本机 ChatGPT 文件登录，否则使用由 CC Switch 管理的第三方占位认证。官方账号需本机文件登录账号和目录与 CC Switch 一致；桥接不刷新登录，不支持纯钥匙串登录。
 
 ## 排错与安全
 
-- 找不到新命令：核对当前配置档案中 Remote 版本为 `0.2.0`，重载窗口。
+- 找不到新命令：运行主插件的“安装或更新远程组件”，核对当前配置档案和远程环境，按提示重载。
 - 旧令牌 401：核对两端安装位置、版本与当前监听进程，替换完整 provider 后新建对话。
 - 官方供应商拒绝占位认证：检查本机 `auto` / `local-chatgpt` 与文件登录，服务器无需新增登录。
 - 诊断通过但侧栏失败：检查实际远程 `CODEX_HOME`、模型 ID 和 provider，重载后新建对话；检查供应商错误。

@@ -15,12 +15,17 @@ const digest = filename => crypto.createHash('sha256').update(fs.readFileSync(fi
 async function packageRelease() {
   fs.mkdirSync(dist, { recursive: true });
   const packages = [];
-  for (const side of ['local', 'remote']) {
+  // The workspace component must be built before it can be embedded in the
+  // main UI extension. Neither component is downloaded at installation time.
+  fs.mkdirSync(path.join(root, 'local', 'assets'), { recursive: true });
+  for (const side of ['remote', 'local']) {
     const cwd = path.join(root, side);
     const manifest = JSON.parse(fs.readFileSync(path.join(cwd, 'package.json'), 'utf8'));
     if (manifest.version !== version) throw new Error('All package versions must match');
     fs.copyFileSync(path.join(root, 'LICENSE'), path.join(cwd, 'LICENSE'));
-    const destination = path.join(dist, `${manifest.name}-${version}.vsix`);
+    const destination = side === 'remote'
+      ? path.join(root, 'local', 'assets', 'remote.vsix')
+      : path.join(dist, `codex-local-bridge-${version}.vsix`);
     // vsce's secret detector can print matched values; never relay its output.
     try {
       execFileSync(process.execPath, [vsce, 'package', '--no-dependencies', '--no-rewrite-relative-links', '--out', destination], { cwd, stdio: 'pipe' });
@@ -28,7 +33,7 @@ async function packageRelease() {
       throw new Error(`VSIX packaging or its safety checks failed for ${side}; raw tool output suppressed to protect credentials.`);
     }
     process.stdout.write(`Packaged ${path.basename(destination)}.\n`);
-    packages.push(destination);
+    if (side === 'local') packages.push(destination);
   }
 
   const checksumName = `SHA256SUMS-${version}.txt`;
@@ -53,7 +58,8 @@ async function packageRelease() {
   archive.end();
   await completion;
   fs.writeFileSync(path.join(dist, checksumName), packageChecksums + `${digest(bundle)}  ${path.basename(bundle)}\n`);
-  process.stdout.write(`Packaged both VSIX files, ${path.basename(bundle)} and ${checksumName}.\n`);
+  execFileSync('python3', [path.join(root, 'scripts', 'verify-package.py')], { cwd: root, stdio: 'inherit' });
+  process.stdout.write(`Packaged the single installer VSIX, ${path.basename(bundle)} and ${checksumName}.\n`);
 }
 
 packageRelease().catch(error => { process.stderr.write(`Packaging failed: ${error.message}\n`); process.exitCode = 1; });

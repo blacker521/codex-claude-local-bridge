@@ -4,6 +4,7 @@ const vscode = require('vscode');
 const http = require('node:http');
 const { RemoteProxy } = require('./proxy');
 const { PROVIDER, buildUpdatedConfig, resolveConfigPath, readConfig, applyConfig } = require('./configure');
+const { createClaudeCommands } = require('./claude');
 
 let current;
 let starting;
@@ -25,7 +26,7 @@ async function start() {
     const proxy = new RemoteProxy({ rpc, port, log: message => output.appendLine(message) });
     const address = await proxy.start();
     current = { proxy };
-    statusItem.text = `$(plug) Codex 本机出口 :${address.port}`;
+    statusItem.text = `$(plug) AI 本机出口 :${address.port}`;
     statusItem.tooltip = `远程 ${address.baseUrl} → VS Code → 本机 ${local.upstreamOrigin}`;
     statusItem.show();
     return address;
@@ -185,7 +186,7 @@ async function openTerminal() {
   terminal.sendText(['codex', ...args].map(shellQuote).join(' '));
 }
 
-async function diagnose() {
+async function diagnose({ claude = false } = {}) {
   const { port, baseUrl } = await start();
   const check = path => new Promise((resolve, reject) => {
     const request = http.get({ hostname: '127.0.0.1', port, path, agent: false }, response => {
@@ -213,6 +214,11 @@ async function diagnose() {
   if (authentication.authenticated !== true || authentication.authentication !== 'local-cc-switch') {
     throw new Error('服务器回环认证模式返回了非预期响应。');
   }
+  if (claude) {
+    output.appendLine('Claude 认证：由本机 CC Switch Claude 路由管理供应商 Key；未读取 ChatGPT 或 Claude 订阅登录。');
+    vscode.window.showInformationMessage('Claude 健康检查链路已连通。请确认本机 CC Switch 开启 Claude 路由，再在新对话中验证实际模型调用。');
+    return;
+  }
   const localAuth = await rpc('authStatus');
   output.appendLine(`本机认证：${localAuth.mode === 'local-chatgpt' ? '使用本机 ChatGPT 登录，凭据不传到服务器' : '第三方供应商由 CC Switch 管理 Key'}`);
   vscode.window.showInformationMessage('已验证远程代理 → VS Code → 本机 CC Switch：服务器回环免认证，由本机 CC Switch 处理供应商认证；请确保 Codex 配置选用生成的 provider，并新建 Codex 对话验证。');
@@ -223,8 +229,14 @@ function activate(context) {
   statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 20);
   statusItem.command = 'codexLocalBridge.diagnose';
   context.subscriptions.push(output, statusItem);
+  context.subscriptions.push(vscode.commands.registerCommand('codexLocalBridge.remote.version', () => ({
+    version: context.extension?.packageJSON?.version,
+    kind: vscode.env.remoteName && context.extension?.extensionKind === vscode.ExtensionKind?.Workspace ? 'workspace' : 'unavailable',
+  })));
   const selectModel = () => showConfig({ forceChoose: true });
-  for (const [command, callback] of Object.entries({ start, stop, diagnose, configureCodex, showConfig, selectModel, openTerminal })) {
+  const claudeCommands = createClaudeCommands(vscode, { start });
+  const diagnoseClaude = () => diagnose({ claude: true });
+  for (const [command, callback] of Object.entries({ start, stop, diagnose, diagnoseClaude, configureCodex, showConfig, selectModel, openTerminal, ...claudeCommands })) {
     context.subscriptions.push(vscode.commands.registerCommand(`codexLocalBridge.${command}`, async () => {
       try { return await callback(); }
       catch (error) {

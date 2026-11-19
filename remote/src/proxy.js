@@ -10,6 +10,10 @@ const ROUTES = new Map([
   ['/v1/models', 'GET'],
   ['/v1/responses', 'POST'],
   ['/v1/responses/compact', 'POST'],
+  ['/v1/messages', 'POST'],
+  ['/v1/messages?beta=true', 'POST'],
+  ['/v1/messages/count_tokens', 'POST'],
+  ['/v1/messages/count_tokens?beta=true', 'POST'],
 ]);
 const HOP_HEADERS = new Set([
   'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization',
@@ -136,7 +140,7 @@ class RemoteProxy {
     res.on('close', disconnected);
     try {
       const expected = ROUTES.get(req.url);
-      if (!expected) return this.error(res, 404, '该桥接只接受 Codex API 路径。');
+      if (!expected) return this.error(res, 404, '该桥接只接受支持的模型 API 路径。');
       if (req.method !== expected) return this.error(res, 405, '不支持该 HTTP 方法。');
       if (req.url !== '/health' && !this.authenticated(req)) {
         this.log(`桥接认证失败：${req.headers.authorization ? 'mismatch' : 'missing'}`);
@@ -157,6 +161,7 @@ class RemoteProxy {
       const headers = { ...req.headers };
       delete headers.authorization;
       delete headers['chatgpt-account-id'];
+      delete headers['x-api-key'];
       const opening = Promise.resolve().then(() => this.rpc('begin', {
         method: req.method,
         path: req.url,

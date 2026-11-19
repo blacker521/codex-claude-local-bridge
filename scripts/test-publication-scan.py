@@ -62,6 +62,17 @@ class PublicationGate(unittest.TestCase):
             archive.writestr("fixture.vsix", inner.getvalue())
         self.rejected_secret(self.scan())
 
+    def test_bundle_installer_and_embedded_helper_synthetic_secret(self):
+        helper = io.BytesIO()
+        with zipfile.ZipFile(helper, "w") as archive:
+            archive.writestr("extension/fixture.txt", 'github_token = "' + SYNTHETIC + '"\n')
+        installer = io.BytesIO()
+        with zipfile.ZipFile(installer, "w") as archive:
+            archive.writestr("extension/assets/remote.vsix", helper.getvalue())
+        with zipfile.ZipFile(str(self.root / "fixture.zip"), "w") as archive:
+            archive.writestr("main.vsix", installer.getvalue())
+        self.rejected_secret(self.scan())
+
     def test_deleted_synthetic_secret_in_worktree_history(self):
         def git(*args):
             subprocess.run(["git"] + list(args), cwd=str(self.root), check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

@@ -1,8 +1,8 @@
 {
   "name": "codex-local-bridge-remote",
   "displayName": "Codex Local Bridge — Remote",
-  "description": "为远程官方 Codex 扩展提供经本机 CC Switch 出网的 API 桥接。",
-  "version": "0.2.0",
+  "description": "为远程 Codex 与 Claude Code 提供经本机 CC Switch 出网的回环 API 桥接。",
+  "version": "0.3.0",
   "publisher": "vectory-local",
   "license": "MIT",
   "engines": {
@@ -19,7 +19,8 @@
   ],
   "main": "./src/extension.js",
   "activationEvents": [
-    "onStartupFinished"
+    "onStartupFinished",
+    "onCommand:codexLocalBridge.remote.version"
   ],
   "capabilities": {
     "untrustedWorkspaces": {
@@ -55,6 +56,18 @@
       {
         "command": "codexLocalBridge.openTerminal",
         "title": "Codex Local Bridge: 打开远程 Codex 终端"
+      },
+      {
+        "command": "codexLocalBridge.showClaudeConfig",
+        "title": "Codex Local Bridge: 显示远程 Claude 配置"
+      },
+      {
+        "command": "codexLocalBridge.openClaudeTerminal",
+        "title": "Codex Local Bridge: 打开远程 Claude 终端"
+      },
+      {
+        "command": "codexLocalBridge.diagnoseClaude",
+        "title": "Codex Local Bridge: 检查 Claude 出口"
       }
     ],
     "configuration": {
@@ -79,6 +92,12 @@
           "default": "",
           "scope": "machine",
           "description": "显式指定模型 ID。留空时自动读取本机目录和当前 Codex 模型；多候选时选择，均不可用时手动输入。"
+        },
+        "codexLocalBridge.claudeModel": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "description": "Claude 路由实际支持的模型 ID；留空时使用 Claude 命令会询问，不复用 Codex 模型。生成配置时三个模型档位先映射到此模型，可手动细分。"
         }
       }
     }

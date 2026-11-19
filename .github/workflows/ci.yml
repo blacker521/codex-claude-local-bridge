@@ -30,7 +30,7 @@ jobs:
         run: npm run check
       - name: Test simulated bridge and configuration
         run: npm test
-      - name: Build both VSIX files and the combined ZIP
+      - name: Build and verify the single installer and ZIP
         run: npm run package
       - name: Install Gitleaks 8.30.1
         shell: bash

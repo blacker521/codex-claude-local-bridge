@@ -10,7 +10,7 @@ const vm = require('node:vm');
 const { inspect } = require('node:util');
 const { createRequire, wrap } = require('node:module');
 const { resolveLocalAuthentication } = require('../local/src/local-auth');
-const { LocalBroker } = require('../local/src/broker');
+const { LocalBroker, isClaudePath } = require('../local/src/broker');
 const { RemoteProxy } = require('../remote/src/proxy');
 
 const MAX_AUTH_BYTES = 1024 * 1024;
@@ -158,6 +158,7 @@ async function rpcHarness(t, options, handler) {
   load(module.exports, (id) => {
     if (id === 'vscode') return vscode;
     if (id === './broker') return {
+      isClaudePath,
       LocalBroker: class extends LocalBroker {
         constructor(configuration) { super({ ...configuration, idleTimeoutMs: 5000 }); broker = this; }
       },

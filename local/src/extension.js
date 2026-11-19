@@ -1,9 +1,10 @@
 'use strict';
 
 const vscode = require('vscode');
-const { LocalBroker } = require('./broker');
+const { LocalBroker, isClaudePath } = require('./broker');
 const { discoverModels } = require('./model-discovery');
 const { resolveLocalAuthentication } = require('./local-auth');
+const { registerRemoteInstaller } = require('./installer');
 
 function activate(context) {
   let broker = null;
@@ -38,7 +39,7 @@ function activate(context) {
     });
   };
   context.subscriptions.push(vscode.commands.registerCommand('codexLocalBridge.local.begin', async argument => {
-    if (argument?.path === '/health') return currentBroker().begin(argument);
+    if (argument?.path === '/health' || isClaudePath(argument?.path)) return currentBroker().begin(argument);
     const auth = await localAuthentication();
     return currentBroker().begin(argument, auth.headers);
   }));
@@ -78,6 +79,7 @@ function activate(context) {
     },
   });
   reload();
+  registerRemoteInstaller(vscode, context);
 }
 
 module.exports = { activate };

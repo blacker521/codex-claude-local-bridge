@@ -1,18 +1,28 @@
 {
   "name": "codex-local-bridge-local",
-  "displayName": "Codex Local Bridge · 本机",
-  "description": "经现有 VS Code Remote 通道，将 Codex API 请求交给本机 CCSwitch。",
-  "version": "0.2.0",
+  "displayName": "Codex Local Bridge",
+  "description": "单 VSIX 安装入口：让远程 Codex / Claude Code 通过本机 CC Switch 请求模型，内置远程组件。",
+  "version": "0.3.0",
   "publisher": "vectory-local",
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/blacker521/codex-local-bridge.git", "directory": "local" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blacker521/codex-local-bridge.git",
+    "directory": "local"
+  },
   "homepage": "https://github.com/blacker521/codex-local-bridge#readme",
-  "bugs": { "url": "https://github.com/blacker521/codex-local-bridge/issues" },
+  "bugs": {
+    "url": "https://github.com/blacker521/codex-local-bridge/issues"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": ["Other"],
-  "extensionKind": ["ui"],
+  "categories": [
+    "Other"
+  ],
+  "extensionKind": [
+    "ui"
+  ],
   "api": "none",
   "main": "./src/extension.js",
   "activationEvents": [
@@ -25,7 +35,8 @@
     "onCommand:codexLocalBridge.local.status",
     "onCommand:codexLocalBridge.local.authStatus",
     "onCommand:codexLocalBridge.local.models",
-    "onCommand:codexLocalBridge.showStatus"
+    "onCommand:codexLocalBridge.showStatus",
+    "onCommand:codexLocalBridge.installRemote"
   ],
   "capabilities": {
     "untrustedWorkspaces": {
@@ -37,6 +48,10 @@
       {
         "command": "codexLocalBridge.showStatus",
         "title": "Codex Local Bridge: 查看本机状态"
+      },
+      {
+        "command": "codexLocalBridge.installRemote",
+        "title": "Codex Local Bridge: 安装或更新远程组件"
       }
     ],
     "configuration": {
@@ -56,7 +71,11 @@
         },
         "codexLocalBridge.authentication": {
           "type": "string",
-          "enum": ["auto", "proxy-managed", "local-chatgpt"],
+          "enum": [
+            "auto",
+            "proxy-managed",
+            "local-chatgpt"
+          ],
           "default": "auto",
           "scope": "machine",
           "description": "本机到 CC Switch 的认证。auto 在本机存在 ChatGPT 文件登录时加载它，否则用供应商占位 Key；proxy-managed 仅供第三方 API；local-chatgpt 要求本机文件登录。官方凭据始终只留在本机，不传到服务器。"

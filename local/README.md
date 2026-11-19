@@ -1,28 +1,32 @@
 # Codex Local Bridge
 
-版本 **0.3.0**。这是单 VSIX 安装入口，主插件运行在本机，内置的 Remote 组件运行在服务器，让远程官方 Codex / Claude Code 的模型请求经编辑器远程通道交给本机 CC Switch。可与 [SSH PassBridge](https://github.com/blacker521/ssh-passbridge) 并用。本项目是社区伴随扩展，不包含官方 Codex。
+English | [简体中文](README.zh-CN.md)
 
-完整安装说明和单文件安装包见 [项目首页](https://github.com/blacker521/codex-claude-local-bridge) 与 [Releases](https://github.com/blacker521/codex-claude-local-bridge/releases)。
+Version **0.3.1**. This is the single VSIX installation entry point. The main extension runs on your local computer, while its bundled Remote component runs on the server. Model requests from the remote official Codex / Claude Code extension travel through the editor's existing remote connection to your local CC Switch. It works alongside [SSH PassBridge](https://github.com/blacker521/ssh-passbridge). This is a community companion extension; it does not bundle official Codex.
 
-## 安装与使用
+See the [project README](https://github.com/blacker521/codex-claude-local-bridge) for the complete setup guide and [Releases](https://github.com/blacker521/codex-claude-local-bridge/releases) for the single-file installer.
 
-1. 本机 CC Switch 开启 Codex 路由和代理，选好供应商。
-2. 在当前配置档案安装 `codex-local-bridge-0.3.0.vsix`，打开目标 Remote-SSH 窗口，点击首次提示或执行 **`Codex Local Bridge: 安装或更新远程组件`**。无需另下第二个 VSIX。
-3. 按提示执行 `Developer: Reload Window`，用 `Developer: Show Running Extensions` 确认主插件在本机、Remote 在服务器。
-4. 在远程窗口运行 **`Codex Local Bridge: 检查本机出口`**，再运行 **`Codex Local Bridge: 配置远程 Codex`**。
-5. 确认模型和远程配置路径，选择“备份并配置”，重载窗口后在官方 Codex 侧栏**新建对话**。
+## Install and use
 
-首次提示只提供安装入口，点击后才调用编辑器内置安装命令；不访问扩展市场，不改 SSH，不自动重载。若编辑器不支持该命令，可手动将本机主插件目录内的 `assets/remote.vsix` 安装到远程环境。
+Command titles in version 0.3.1 are in Chinese. The exact titles below can be copied into the Command Palette; the surrounding text explains their purpose.
 
-复杂 TOML 会提供手动入口，可运行“选择模型并显示配置”生成片段。服务器无需 Codex 登录、API Key 或桥接令牌；SSH 登录照常认证。
+1. Enable the Codex route and proxy in your local CC Switch, then select a provider.
+2. Install `codex-local-bridge-0.3.1.vsix` in the current editor profile. Open the target Remote-SSH window and accept the initial installation prompt, or run **`Codex Local Bridge: 安装或更新远程组件`** (install or update the remote component). No second VSIX download is needed.
+3. Run `Developer: Reload Window` when prompted. Use `Developer: Show Running Extensions` to confirm that the main extension runs locally and Remote runs on the server.
+4. In the remote window, run **`Codex Local Bridge: 检查本机出口`** (check the local egress), followed by **`Codex Local Bridge: 配置远程 Codex`** (configure remote Codex).
+5. Confirm the model and remote configuration path, then select “备份并配置” (back up and configure). Reload the window and start a **new conversation** in the official Codex sidebar.
+
+The initial prompt only offers installation. Clicking it invokes the editor's built-in installer; it does not access the extension marketplace, change SSH settings, or reload the window automatically. If the editor does not support that command, manually install `assets/remote.vsix` from the local main extension's installation directory into the remote environment.
+
+Complex TOML is handled through the manual configuration path. Run `Codex Local Bridge: 选择模型并显示配置` (choose a model and show the configuration) to generate a snippet. The server does not need a Codex login, API key, or bridge token for this bridge. SSH authentication continues as usual.
 
 ## Claude Code
 
-同一主插件也支持 Claude Code，无需再安装第三个桥接插件。在本机 CC Switch 开启 Claude 路由并配置有效 API / Bearer 供应商；远程运行“检查 Claude 出口”与“显示远程 Claude 配置”，将片段合入远程用户设置 JSON，重载后在官方 Claude Code 侧栏新建对话。也可运行“打开远程 Claude 终端”（远程 PATH 需已有 `claude`）。
+The same main extension supports Claude Code; a third bridge extension is not needed. Enable the Claude route in local CC Switch and configure a provider with a valid API / Bearer credential. In the remote window, run `Codex Local Bridge: 检查 Claude 出口` (check Claude egress) and `Codex Local Bridge: 显示远程 Claude 配置` (show remote Claude configuration). Merge the snippet into the remote user settings JSON, reload, and start a new conversation in the official Claude Code sidebar. You can also run `Codex Local Bridge: 打开远程 Claude 终端` (open a remote Claude terminal); `claude` must already be on the remote PATH.
 
-Claude 使用独立的 `codexLocalBridge.claudeModel`，不沿用 Codex 模型。请求跳过本机 ChatGPT 登录解析；本版本不读取或刷新 Claude Pro / Max 订阅登录。真实 Key 只由本机 CC Switch 注入，远程使用公开占位值。完整步骤见项目首页。
+Claude uses the separate `codexLocalBridge.claudeModel` setting and does not reuse the Codex model. Its requests skip local ChatGPT login parsing. This version does not read or refresh Claude Pro / Max subscription logins. Only local CC Switch injects the real key; the remote client uses a public placeholder. See the project README for the full procedure.
 
-## 本机设置
+## Local settings
 
 ```json
 {
@@ -31,31 +35,31 @@ Claude 使用独立的 `codexLocalBridge.claudeModel`，不沿用 Codex 模型�
 }
 ```
 
-`2900` 是本插件默认端口，以 CC Switch 实际设置为准。上游只接受 HTTP(S) 的 `localhost`、`127.0.0.1` 或 `[::1]` origin，不带路径、用户名、查询或片段，不跟随重定向。修改地址会取消现有请求。
+`2900` is this extension's default port. Use the actual port configured in CC Switch. The upstream must be an HTTP(S) origin on `localhost`, `127.0.0.1`, or `[::1]`, without a path, username, query, or fragment. Redirects are not followed. Changing the address cancels existing requests.
 
-| 设置 | 默认值与用途 |
+| Setting | Default and purpose |
 | --- | --- |
-| `codexLocalBridge.upstreamOrigin` | `http://127.0.0.1:2900`，本机 CC Switch 地址 |
-| `codexLocalBridge.authentication` | `auto`，本机认证模式 |
-| `codexLocalBridge.codexHome` | 空；使用本机 `CODEX_HOME` 或 `~/.codex`，自定义时须为绝对路径 |
-| `codexLocalBridge.ccSwitchHome` | 空；使用 `~/.cc-switch`，仅供模型历史回退 |
+| `codexLocalBridge.upstreamOrigin` | `http://127.0.0.1:2900`, the local CC Switch address |
+| `codexLocalBridge.authentication` | `auto`, the local authentication mode |
+| `codexLocalBridge.codexHome` | Empty; uses local `CODEX_HOME` or `~/.codex`. A custom value must be an absolute path |
+| `codexLocalBridge.ccSwitchHome` | Empty; uses `~/.cc-switch`, only for model-history fallback |
 
-## 认证与模型
+## Authentication and models
 
-- `auto`：存在本机 ChatGPT 文件登录时加载它；没有时使用 `PROXY_MANAGED`，由 CC Switch 注入第三方 Key。
-- `proxy-managed`：不读取登录文件，适合纯第三方 API。
-- `local-chatgpt`：强制要求可用的本机 ChatGPT 文件登录。
+- `auto`: loads a local ChatGPT file login when available; otherwise uses `PROXY_MANAGED`, letting CC Switch inject the third-party key.
+- `proxy-managed`: does not read the login file; suitable for third-party API routes only.
+- `local-chatgpt`: requires a usable local ChatGPT file login.
 
-Codex 官方账号路由需要本机 `auth.json` 的 `tokens.access_token` 和 `tokens.account_id`，仅用于本机到 CC Switch 的请求，凭据不返回服务器。文件目录和账号必须与 CC Switch 所选官方账号一致。桥接不写入或刷新登录，纯钥匙串登录目前不支持。服务器传来的认证头会被移除。
+An official Codex account route needs `tokens.access_token` and `tokens.account_id` from local `auth.json`. They are used only for requests from the local extension to CC Switch and are never returned to the server. The file directory and account must match the official account selected in CC Switch. The bridge does not write or refresh the login, and keychain-only logins are not currently supported. Authentication headers received from the server are removed.
 
-模型依次来自 CC Switch `/v1/models`、本机 Codex 配置顶层 `model`、CC Switch 当前 Codex 供应商最近成功请求；最后可手动输入。历史回退需要 Python 3，只表示曾成功使用，不保证当前权限。模型发现只返回模型元数据，目录请求使用占位认证；发现成功不代表官方路由认证成功。
+Models are discovered from CC Switch `/v1/models`, the top-level `model` in local Codex configuration, then the most recent successful request for the current Codex provider in CC Switch. Manual input is the final fallback. History fallback requires Python 3 and proves only that a model worked previously, not that current access remains valid. Discovery returns model metadata only and uses placeholder authentication for catalog requests; successful discovery does not prove successful official-route authentication.
 
-## 诊断与边界
+## Diagnostics and limits
 
-“查看本机状态”只显示地址、会话数和协议版本。“检查本机出口”检查链路和认证解析模式，不发送模型推理请求。
+`Codex Local Bridge: 查看本机状态` (show local status) displays only the address, session count, and protocol version. `Codex Local Bridge: 检查本机出口` checks the connection and resolved authentication mode without sending a model inference request.
 
-Local 不监听 TCP 端口；Remote 只监听服务器 `127.0.0.1`，默认免认证。**同机能连接此端口的用户或进程也可能调用模型，请用于受信任的服务器并勿暴露端口。** 工作区、编辑器及扩展应可信，提示词和响应会经本机与供应商处理。
+Local does not listen on a TCP port. Remote listens only on the server's `127.0.0.1`, with no bridge authentication by default. **Other users or processes on the same server that can connect to this port may also call the model. Use a trusted server and do not expose the port.** The workspace, editor, and extensions must be trusted. Prompts and responses pass through your local computer and the selected provider.
 
-支持 HTTP / SSE：GET `/health`、`/v1/models`，POST `/v1/responses`、`/v1/responses/compact`、`/v1/messages`、`/v1/messages/count_tokens`；两个 Messages 路径支持精确的 `?beta=true`。计数路径是否可用取决于 CC Switch / 供应商，上游 404 原样返回。每个 broker 最多 8 会话、请求体 32 MiB、跨端块 64 KiB，持续传输无固定总时长限制。需保持本机 CC Switch 与远程窗口运行。
+Supported HTTP / SSE routes are GET `/health` and `/v1/models`, and POST `/v1/responses`, `/v1/responses/compact`, `/v1/messages`, and `/v1/messages/count_tokens`. Both Messages paths accept the exact `?beta=true` query. Token-count support depends on CC Switch and the provider; an upstream 404 is returned unchanged. Each broker allows up to 8 sessions, a 32 MiB request body, and 64 KiB cross-host chunks. An active stream has no fixed total duration limit. Keep local CC Switch and the remote editor window running.
 
-升级时安装新版主 VSIX，再执行“安装或更新远程组件”并重载。已有同版或更高版本不会被降级覆盖。主插件与远程组件在扩展列表中仍是两个条目，这是同时运行两端代码所需的结构；卸载时按需在两端分别处理。重新配置后新建对话。若提示旧桥接令牌错误，检查是否仍运行旧版或安装到了其他配置档案。安全说明见 [SECURITY.md](https://github.com/blacker521/codex-claude-local-bridge/blob/main/SECURITY.md)。以 MIT 许可证开源。
+To upgrade, install the newer main VSIX, run `Codex Local Bridge: 安装或更新远程组件`, and reload. An equal or newer remote version is not overwritten with an older version. The main extension and remote component remain two entries in the extension list because code must run on both machines. Uninstall each side as needed. Start a new conversation after reconfiguration. If an old bridge-token error appears, check for an old running version or an installation in a different editor profile. See [SECURITY.md](https://github.com/blacker521/codex-claude-local-bridge/blob/main/SECURITY.md). Released under the MIT license.

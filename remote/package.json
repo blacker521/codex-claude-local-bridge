@@ -2,7 +2,7 @@
   "name": "codex-local-bridge-remote",
   "displayName": "Codex Local Bridge — Remote",
   "description": "为远程 Codex 与 Claude Code 提供经本机 CC Switch 出网的回环 API 桥接。",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "publisher": "vectory-local",
   "license": "MIT",
   "engines": {

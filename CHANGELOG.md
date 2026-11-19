@@ -1,24 +1,29 @@
-# 版本记录
+# Changelog
+
+English | [简体中文](CHANGELOG.zh-CN.md)
+
+## 0.3.1
+
+- Provide complete English and Simplified Chinese documentation, with language links and offline packaging.
 
 ## 0.3.0
 
-- 同一安装入口支持 Claude Code：新增 Messages / count_tokens 转发、Claude 侧栏配置片段与 CLI 启动命令。
-- Claude 请求始终使用 CC Switch 托管认证，剥离远程认证头，跳过本机 ChatGPT 登录，不读取 Claude 订阅登录。
-
-- 改为单个主 VSIX 安装入口，内嵌匹配版本的远程组件，不需另下第二个包。
-- 新增“安装或更新远程组件”命令和首次远程窗口安装提示，点击后才安装；同版或更高版本跳过，不自动重载。
-- 增加无副作用的远程版本探测，安装完成但尚未激活时明确提示重载。
-- 打包先构建远程组件，再内嵌主 VSIX，自动校验嵌套包身份、宿主、源码和文件白名单。
-- 保留旧两端扩展 ID、桥接协议和 SSH PassBridge 兼容性。
+- Support Claude Code through the same installation entry point: Messages / count_tokens forwarding, sidebar configuration snippets and a CLI launch command.
+- Always use CC Switch-managed authentication for Claude requests, strip remote authentication headers and skip local ChatGPT login resolution. Claude subscription logins are not read.
+- Replace two separate downloads with one main VSIX containing the matching remote component.
+- Add `Codex Local Bridge: 安装或更新远程组件` (install or update the remote component) and an initial remote-window installation prompt. Installation starts only after a click; equal or newer versions are skipped and the window is not reloaded automatically.
+- Add a side-effect-free remote version probe. Ask for a reload when installation completes but the new component is not yet active.
+- Build the remote component before embedding it in the main VSIX, and verify nested package identities, extension hosts, source contents and file allowlists.
+- Preserve both extension IDs, the bridge protocol and SSH PassBridge compatibility.
 
 ## 0.2.0
 
-首次公开发布。
+First public release.
 
-- 通过 VS Code Remote 通道桥接远程 Codex 与本机 CC Switch，可与 SSH PassBridge 并用。
-- 远程回环 API 免认证，供应商认证留在本机；支持第三方代理认证和本机 ChatGPT 文件登录。
-- 从模型目录、本机 Codex 配置或当前供应商成功历史发现模型 ID，支持手动选择。
-- 新增“配置远程 Codex”命令，确认后备份并更新配置；复杂 TOML 保留手动入口。
-- 修复 GET 请求体分帧与跨端 RPC 卡住时的取消、停止处理。
-- 统一两个 VSIX 与单 ZIP 的打包流程，附带文档和 SHA-256 校验。
-- 添加锁定开发依赖、CI、贡献与安全说明，以及源码、Git 历史和归档敏感信息检查。
+- Bridge remote Codex to local CC Switch through the VS Code Remote channel, alongside SSH PassBridge.
+- Provide an unauthenticated remote loopback API with provider authentication kept on the local computer. Support proxy-managed third-party credentials and local ChatGPT file login.
+- Discover model IDs from the model catalog, local Codex configuration or the current provider's successful request history, with manual selection.
+- Add `Codex Local Bridge: 配置远程 Codex` (configure remote Codex) to back up and update configuration after confirmation, with a manual fallback for complex TOML.
+- Fix GET request-body framing and cancellation/stopping when cross-host RPC calls hang.
+- Unify packaging of both VSIX files and a single ZIP with documentation and SHA-256 checksums.
+- Add locked development dependencies, CI, contribution and security guidance, and sensitive-information checks for source files, Git history and archives.

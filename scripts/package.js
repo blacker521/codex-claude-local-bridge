@@ -50,7 +50,7 @@ async function packageRelease() {
   });
   // Release contents are an explicit allowlist; user settings, logs and caches
   // can never be added by recursively archiving the checkout.
-  for (const name of ['README.md', 'LICENSE', 'CHANGELOG.md', 'SECURITY.md', 'local/README.md', 'remote/README.md']) {
+  for (const name of ['README.md', 'README.zh-CN.md', 'LICENSE', 'CHANGELOG.md', 'CHANGELOG.zh-CN.md', 'SECURITY.md', 'SECURITY.zh-CN.md', 'CONTRIBUTING.md', 'CONTRIBUTING.zh-CN.md', 'local/README.md', 'local/README.zh-CN.md', 'remote/README.md', 'remote/README.zh-CN.md']) {
     archive.addFile(path.join(root, name), `${prefix}/${name}`);
   }
   for (const filename of packages) archive.addFile(filename, `${prefix}/dist/${path.basename(filename)}`);

@@ -15,7 +15,7 @@ CHECKSUMS = "SHA256SUMS-" + VERSION + ".txt"
 
 def verify_component(data, side):
     with zipfile.ZipFile(io.BytesIO(data)) as archive:
-        expected = {"extension.vsixmanifest", "[Content_Types].xml", "extension/package.json", "extension/readme.md", "extension/LICENSE.txt"}
+        expected = {"extension.vsixmanifest", "[Content_Types].xml", "extension/package.json", "extension/readme.md", "extension/README.zh-CN.md", "extension/LICENSE.txt"}
         for file in (ROOT / side / "src").iterdir():
             if file.is_file():
                 name = "extension/src/" + file.name
@@ -25,6 +25,7 @@ def verify_component(data, side):
             expected.add("extension/assets/remote.vsix")
         assert len(archive.namelist()) == len(expected) and set(archive.namelist()) == expected, "Unexpected VSIX files"
         assert archive.read("extension/readme.md") == (ROOT / side / "README.md").read_bytes(), "Guide content mismatch"
+        assert archive.read("extension/README.zh-CN.md") == (ROOT / side / "README.zh-CN.md").read_bytes(), "Chinese guide content mismatch"
         assert archive.read("extension/LICENSE.txt") == (ROOT / "LICENSE").read_bytes(), "License mismatch"
         manifest = json.loads(archive.read("extension/package.json").decode("utf-8"))
         assert manifest == json.loads((ROOT / side / "package.json").read_text()), "Manifest mismatch"
@@ -40,7 +41,7 @@ def verify_component(data, side):
 
 def main():
     verify_component((ROOT / "dist" / MAIN).read_bytes(), "local")
-    documents = {"README.md", "LICENSE", "CHANGELOG.md", "SECURITY.md", "local/README.md", "remote/README.md"}
+    documents = {"README.md", "README.zh-CN.md", "LICENSE", "CHANGELOG.md", "CHANGELOG.zh-CN.md", "SECURITY.md", "SECURITY.zh-CN.md", "CONTRIBUTING.md", "CONTRIBUTING.zh-CN.md", "local/README.md", "local/README.zh-CN.md", "remote/README.md", "remote/README.zh-CN.md"}
     with zipfile.ZipFile(str(ROOT / "dist" / (PREFIX + ".zip"))) as archive:
         expected = {PREFIX + "/" + name for name in documents}
         expected.update({PREFIX + "/dist/" + MAIN, PREFIX + "/dist/" + CHECKSUMS})

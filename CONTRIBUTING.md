@@ -1,12 +1,14 @@
-# 贡献指南
+# Contributing
 
-欢迎提交可复现的问题与改进。本项目是两个独立扩展组成的伴随桥接，不修改或打包官方 Codex。
+English | [简体中文](CONTRIBUTING.zh-CN.md)
 
-## 开发环境
+Reproducible reports and improvements are welcome. This project is a companion bridge made of two independent extensions; it does not modify or bundle the official Codex extension.
 
-- Node.js 22+、npm、Python 3。
-- 发布检查安装 Gitleaks；CI 固定其版本。
-- `npm ci` 使用锁定的开发依赖，无需全局安装 vsce。
+## Development environment
+
+- Node.js 22+, npm and Python 3.
+- Install Gitleaks for publication checks; CI pins its version.
+- Use `npm ci` for locked development dependencies. A global vsce installation is not required.
 
 ```bash
 npm ci
@@ -17,27 +19,35 @@ npm run test:scan
 npm run scan:secrets
 ```
 
-## 目录
+## Layout
 
-| 目录 | 职责 |
+| Directory | Responsibility |
 | --- | --- |
-| `local/src/` | 上游回环限制、认证、模型发现、流式 broker |
-| `remote/src/` | HTTP 代理、跨宿主命令、远程配置与命令入口 |
-| `test/` | Node 内置测试，使用临时目录和模拟服务 |
-| `scripts/` | 语法检查、VSIX/ZIP 打包与发布扫描 |
+| `local/src/` | Loopback upstream restrictions, authentication, model discovery and streaming broker |
+| `remote/src/` | HTTP proxy, cross-host commands, remote configuration and command entry points |
+| `test/` | Node's built-in tests with temporary directories and simulated services |
+| `scripts/` | Syntax checks, VSIX/ZIP packaging and publication scanning |
 
-修改跨端协议时保持 JSON 可序列化、分块背压和取消语义；不要让任何本机凭据进入 RPC 返回值。修改认证时验证远程传入的认证头被移除。修改配置更新器时保留拒绝复杂语法、写入确认、备份和并发变更检测。
+When changing the cross-host protocol, preserve JSON serialization, chunk backpressure and cancellation semantics. Never put local credentials into RPC results. Authentication changes must verify that remote authentication headers are stripped. Configuration-update changes must preserve rejection of complex syntax, confirmation before writing, backups and concurrent-change detection.
 
-## 测试与提交
+## Tests and submissions
 
-测试必须使用独立临时目录、假凭据和模拟上游，不能读取开发者真实 `auth.json`、CC Switch 数据库或 SSH 配置，也不应发送真实模型请求。为行为修复添加能复现故障的回归用例；文档与打包调整可通过检查输出验证。单入口安装器只能使用主插件目录中固定的内置包 URI，不能从工作区、设置或命令参数接收待安装路径。不要用跨宿主不可见的 `extensions.getExtension` 判断远程版本；应使用无副作用的版本 RPC。
+Tests must use isolated temporary directories, synthetic credentials and simulated upstream services. Do not read a developer's real `auth.json`, CC Switch database or SSH configuration, and do not send real model requests. Add a regression test that reproduces a behavior fix. Documentation and packaging changes can be validated by inspecting their output.
 
-不要提交用户配置、日志、数据库、备份、私有地址或个人绝对路径。例子使用 `127.0.0.1`、`your-model-id` 和通用占位路径。扫描发现问题时替换数据；不要通过宽泛忽略规则绕过检查。
+The single VSIX installer must use only the fixed embedded-package URI in the main extension directory. Do not accept installation paths from workspaces, settings or command arguments. Do not use `extensions.getExtension`, which cannot see across hosts, to determine the remote version; use the side-effect-free version RPC.
 
-PR 请说明具体触发条件、修改后的行为及实际运行的验证。若未验证某个编辑器或供应商，请明确范围。
+Do not commit user settings, logs, databases, backups, private addresses or personal absolute paths. Use `127.0.0.1`, `your-model-id` and generic placeholder paths in examples. Replace unsafe data when scanning finds it; do not bypass checks with broad ignore rules.
 
-## 版本与发布
+A pull request should explain its concrete trigger, resulting behavior and the validation actually performed. State the scope if an editor or provider has not been verified.
 
-根目录、`local/`、`remote/` 的 `package.json` 版本应一致，更新锁文件和 CHANGELOG。两端保留现有扩展 ID，以便升级。先构建远程包，再嵌入本机主 VSIX；`local/assets/` 是生成目录，不进入 Git。`npm run package` 显式打包必要文件，`dist/` 不进入 Git。发布前检查主 VSIX、其内嵌远程 VSIX 和可选 ZIP，再执行敏感信息扫描；Git 提交后再次检查历史。
+## Documentation languages
 
-MIT 许可证适用于本仓库原创代码。引入其他项目代码前需核对授权并保留必要声明。安全问题按 [SECURITY.md](SECURITY.md) 处理。
+Default documents are in English; `*.zh-CN.md` files provide complete Simplified Chinese versions. Keep both languages in sync when changing installation steps, commands, defaults or limitations. Command titles must match what the extension actually displays.
+
+## Versions and releases
+
+Keep the versions in the root, `local/` and `remote/` `package.json` files aligned, and update the lockfile and changelog. Preserve both extension IDs for upgrades. Build the remote package first, then embed it in the local main VSIX; `local/assets/` is generated and not committed.
+
+`npm run package` includes explicitly allowed files; `dist/` is not committed. Inspect the main VSIX, its embedded remote VSIX and the optional ZIP before publication, then scan for sensitive information. Scan Git history again after committing.
+
+The MIT license applies to original code in this repository. Check licensing and retain required notices before importing code from other projects. Follow [SECURITY.md](SECURITY.md) for security issues.

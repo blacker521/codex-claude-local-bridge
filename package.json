@@ -1,6 +1,6 @@
 {
   "name": "vscode-codex-local-bridge",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "通过编辑器已有远程连接，将 Codex 与 Claude Code 的模型请求交给本机 CC Switch。",
   "scripts": {

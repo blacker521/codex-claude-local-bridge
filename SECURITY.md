@@ -1,34 +1,40 @@
-# 安全说明
+# Security
 
-## 信任边界
+English | [简体中文](SECURITY.zh-CN.md)
 
-Codex Local Bridge 将远程 Codex / Claude Code 的模型请求经编辑器远程通道交给本机 CC Switch。提示词、上下文和响应会经过这些组件及所选模型供应商。
+## Trust boundaries
 
-- 本机上游地址限定为 HTTP(S) 回环 origin；不接受外部地址、路径或 URL 用户信息，不跟随重定向。
-- 远程代理仅监听 `127.0.0.1`，默认免认证。同机能连接该端口的其他用户或进程可能调用模型并消耗配额。仅用于受信任的服务器，不要暴露端口。
-- 扩展要求受信任的工作区；编辑器、其他扩展、远程主机和 CC Switch 都应可信。
-- 仅转发允许的方法和模型路径，并限制请求、会话和分块大小。
+Codex Local Bridge sends remote Codex / Claude Code model requests through the editor's remote connection to CC Switch on your computer. Prompts, context and responses pass through these components and the selected model provider.
 
-## 单入口安装
+- The local upstream must be an HTTP(S) loopback origin. External hosts, URL paths and URL user information are rejected; redirects are not followed.
+- The remote proxy listens only on `127.0.0.1` and requires no authentication by default. Other users or processes on that server that can reach the port may invoke models and consume quota. Use a trusted server and do not expose the port.
+- The extensions require a trusted workspace. The editor, other extensions, remote host and CC Switch must also be trusted.
+- Only allowed methods and model paths are forwarded, with limits on request size, sessions and chunks.
 
-主插件内置匹配版本的远程 VSIX，用户点击安装提示或执行“安装或更新远程组件”后，才调用编辑器的内置安装命令。包 URI 固定取自主插件安装目录，不从工作区下载或接受自定义路径。编辑器可能显示自己的信任或安装提示。安装后通过远程版本命令检查是否就绪，未激活时提示手动重载；不自动重载。卸载主插件不会保证清除各远程主机的组件。
+## Single VSIX installation
 
-## 凭据与本地文件
+The main extension embeds a matching remote VSIX. It calls the editor's built-in installer only after you click the installation prompt or run `Codex Local Bridge: 安装或更新远程组件` (install or update the remote component). The package URI is fixed to the main extension's installation directory; it is not downloaded from a workspace or taken from a custom path. The editor may show its own trust or installation prompts.
 
-服务器传来的认证头会被移除。本机 ChatGPT 文件登录中的 access token 和 account ID 仅用于本机到 CC Switch 的请求，不经跨端命令返回。第三方 Key 由 CC Switch 注入。Claude 请求跳过 ChatGPT 登录解析，始终使用 CC Switch 托管认证；即使本机调用者误传了 Codex 可信认证头，也不会应用到 Claude 请求。本版本不读取或刷新 Claude 订阅登录。桥接不刷新登录、不读取 SSH 密码，也不修改 SSH 配置。
+A remote version command checks readiness after installation. If the component is not active, the extension asks you to reload manually; it does not reload automatically. Uninstalling the main extension does not guarantee removal of components from each remote host.
 
-“配置远程 Codex”在预览并确认后更新远程配置；已有文件先备份为 `0600`，新配置文件为 `0600`。**备份可能保留旧 Key 或其他敏感设置**，请自行妥善保存或清理，不要上传。复杂或有歧义的 TOML 会要求人工处理。文件锁和写前比较用于避免常见并发覆盖，不构成对恶意同机进程的隔离。
+## Credentials and local files
 
-模型历史回退使用 Python SQLite 只读连接；SQLite 的 WAL/共享内存管理仍可能产生辅助文件。扩展不导出数据库或完整供应商配置。
+Authentication headers from the server are removed. The access token and account ID from the local ChatGPT file login are used only for local requests to CC Switch, and are not returned through cross-host commands. CC Switch injects third-party provider keys.
 
-Claude 侧栏配置命令只生成片段，不自动写编辑器设置；CLI 命令通过单次环境和参数设置路由，不改变持久配置。`PROXY_MANAGED` 是公开占位值，并非密码。模型桥接不覆盖网页、MCP 或其他工具自己的网络连接。
+Claude requests skip ChatGPT login resolution and always use CC Switch-managed authentication. Even if a local caller accidentally supplies trusted Codex authentication headers, they are not applied to Claude requests. This version does not read or refresh Claude subscription logins. The bridge does not refresh logins, read SSH passwords or modify SSH configuration.
 
-## 报告漏洞
+`Codex Local Bridge: 配置远程 Codex` (configure remote Codex) updates the remote configuration after preview and confirmation. Existing files are first backed up with mode `0600`; new configuration files use `0600`. **Backups may contain old keys or other sensitive settings.** Store or remove them appropriately and do not upload them. Complex or ambiguous TOML requires manual editing. File locks and comparisons before writing prevent common concurrent overwrites; they do not isolate the configuration from a malicious process on the same host.
 
-请勿在公开 issue、PR、日志或截图中附带凭据、提示词、模型响应、私有网络地址或完整个人路径。非敏感问题可使用仓库 issue，并提供可复现的合成示例。涉及有效凭据或可利用细节时，如仓库提供 GitHub 的 “Report a vulnerability” 入口，请使用该私密入口；不要把有效秘密粘贴到公开页面。
+The model-history fallback uses a Python SQLite read-only connection. SQLite WAL/shared-memory management may still create auxiliary files. The extension does not export the database or complete provider configurations.
 
-若凭据已经公开，应先在所属服务撤销或轮换。删除文本不能使已公开的凭据失效。
+The Claude sidebar configuration command only displays a snippet and does not write editor settings. The CLI command sets routing through a per-process environment and arguments without changing persistent configuration. `PROXY_MANAGED` is a public placeholder, not a password. The model bridge does not handle network connections made by web access, MCP or other tools themselves.
 
-## 发布检查
+## Reporting a vulnerability
 
-`npm run scan:secrets` 使用 Gitleaks 检查源码、发布归档和可用的 Git 历史，并检查敏感文件名、个人路径及私网地址。扫描报告隐藏匹配值。扫描无法证明不存在一切敏感内容；发布仍需检查待提交文件列表、归档清单和示例数据。运行时配置、认证文件、日志、数据库和备份不属于发布输入。
+Do not include credentials, prompts, model responses, private network addresses or full personal paths in public issues, pull requests, logs or screenshots. Report non-sensitive problems in repository issues with reproducible synthetic examples. For active credentials or exploit details, use GitHub's private **Report a vulnerability** entry when available; never paste active secrets into public pages.
+
+If credentials have already been exposed, revoke or rotate them with the service first. Deleting the text does not invalidate an exposed credential.
+
+## Publication checks
+
+`npm run scan:secrets` uses Gitleaks to scan source files, release archives and available Git history. It also checks sensitive filenames, personal paths and private network addresses. Reports hide matched values. Scanning cannot prove the absence of all sensitive information: also review the staged file list, archive contents and example data. Runtime settings, authentication files, logs, databases and backups are not publication inputs.
